@@ -1,26 +1,41 @@
 <?php
 
-Class Queue extends SplQueue
-{
 
-}
-$queue = [];
+$graph = [
+    'A' => ['B', 'C'],
+    'B' => ['A', 'D'],
+    'D' => ['B'],
+    'C' => ['A',],
+];
 
-$dummyQueue = new Queue();
+//bfs($graph, 'A', 'D'); // true
+//bfs($graph, 'A', 'G'); // false
+print_r(bfs_path($graph, 'A', 'D')); // ['A', 'B', 'D']
 
-$this->traverseTree($id, $dummyQueue);
 
-function traverseTree($rootNode, $dummyQueue)
-{
-    if ($rootNode->lft != 0) {
-        $dummyQueue->enqueue($rootNode->lft);
+function bfs_path($graph, $start, $end) {
+    $queue = new SplQueue();
+    # Enqueue the path
+    $queue->enqueue([$start]);
+    $visited = [$start];
+    while ($queue->count() > 0) {
+        $path = $queue->dequeue();
+        # Get the last node on the path
+        # so we can check if we're at the end
+        $node = $path[sizeof($path) - 1];
+        
+        if ($node === $end) {
+            return $path;
+        }
+        foreach ($graph[$node] as $neighbour) {
+            if (!in_array($neighbour, $visited)) {
+                $visited[] = $neighbour;
+                # Build new path appending the neighbour then and enqueue it
+                $new_path = $path;
+                $new_path[] = $neighbour;
+                $queue->enqueue($new_path);
+            }
+        };
     }
-    if ($rootNode->rgt != 0) {
-        $dummyQueue->enqueue($rootNode->rgt);
-    }
-    if (!($dummyQueue->isEmpty())) {
-        $nextId = $dummyQueue->dequeue();
-        $nextNode = array_push($this->queue, $nextNode);
-        $this->traverseTree($nextNode, $dummyQueue);
-    }
+    return false;
 }
